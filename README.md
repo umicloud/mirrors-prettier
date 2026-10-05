@@ -1,9 +1,3 @@
-# archived
-
-prettier made some changes that breaks plugins entirely
-
----
-
 prettier mirror
 ===============
 
@@ -18,26 +12,13 @@ For prettier: see https://github.com/prettier/prettier
 Add this to your `.pre-commit-config.yaml`:
 
 ```yaml
-- repo: https://github.com/pre-commit/mirrors-prettier
+- repo: https://github.com/umicloud/mirrors-prettier
   rev: "" # Use the sha / tag you want to point at
   hooks:
     - id: prettier
 ```
 
 _note_: only prettier versions >= 2.1.0 are supported
-
-When using plugins with `prettier` you'll need to declare them under
-`additional_dependencies`. For example:
-
-```yaml
-- repo: https://github.com/pre-commit/mirrors-prettier
-  rev: "" # Use the sha / tag you want to point at
-  hooks:
-    - id: prettier
-      additional_dependencies:
-        - prettier@2.1.2
-        - "@prettier/plugin-xml@0.12.0"
-```
 
 By default, all files are passed to `prettier`, if you want to limit the
 file list, adjust `types` / `types_or` / `files`:
