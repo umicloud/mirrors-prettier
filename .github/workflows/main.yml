@@ -1,23 +1,53 @@
 name: main
+
 on:
   push:
     branches: [main]
   schedule:
     - cron: "15 8 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 
 jobs:
-  build:
-    name: main
+  mirror:
+    name: mirror
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-      - run: pip install pre-commit-mirror-maker
-      - run: git config --global user.name 'Github Actions'
-      - run: git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-      - run: pre-commit-mirror . --language=node --package-name=prettier --types=text --entry='prettier --write --ignore-unknown' --id=prettier
-      - run: |
-          git remote set-url origin https://x-access-token:$GH_TOKEN@github.com/$GITHUB_REPOSITORY
-          git push origin HEAD:refs/heads/main --tags
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+
+      - name: Install pre-commit-mirror-maker
+        run: pip install pre-commit-mirror-maker
+
+      - name: Configure git identity
+        run: |
+          git config --global user.name 'Github Actions'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+      - name: Update mirror
+        run: >
+          pre-commit-mirror .
+          --language=node
+          --package-name=prettier
+          --types=text
+          --entry='prettier --write --ignore-unknown'
+          --id=prettier
+
+      - name: Push changes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}"
+          git push origin HEAD:refs/heads/main --tags
