@@ -13,7 +13,7 @@ Add this to your `.pre-commit-config.yaml`:
 
 ```yaml
 - repo: https://github.com/umicloud/mirrors-prettier
-  rev: "" # Use the sha / tag you want to point at
+  rev: "v3.9.9" # Use the sha / tag you want to point at
   hooks:
     - id: prettier
 ```
